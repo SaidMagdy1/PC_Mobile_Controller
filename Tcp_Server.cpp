@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include <string>
 #include <algorithm>
 #include <cstring>    // For memset
@@ -18,7 +19,6 @@ int main(){
     struct sockaddr_in hint;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
-    int opt = 1;
     int port=5555;
     char buffer[1024] = {0};
 
@@ -68,7 +68,6 @@ int main(){
         return -1;
     }
 
-  
     std::string message;
     while (true) {
         // Receive message from client
@@ -83,6 +82,20 @@ int main(){
             std::cout << " Client Disconnected " << std::endl;
             break;
         }
+
+        if(std::string(buffer,bytes_received) == "Gedit" || std::string(buffer,bytes_received) == "Edit" ){
+            system("gedit &");
+        }
+        if(std::string(buffer,bytes_received) == "Firefox" || std::string(buffer,bytes_received) == "Browser" ){
+            system("firefox &");
+        }
+        if(std::string(buffer,bytes_received) == "Code" || std::string(buffer,bytes_received) == "VSC" ){
+            system("code . &");
+        }
+        
+        
+
+        
 /*
         // Prompt server user to enter a message to send
         std::cout << "Enter message to send to client (type 'exit' to close): ";
