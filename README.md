@@ -1,5 +1,10 @@
 # PC_Mobile_Controller
 Control your PC by your mobile phone using C++ Tcp/ip Socket
+![image](https://github.com/user-attachments/assets/f5434967-b607-417b-990b-e10c6c11726e)
+![image](https://github.com/user-attachments/assets/e77d733b-6232-48ce-89c1-e79946037f88)
+![image](https://github.com/user-attachments/assets/6d32e651-b5d4-4524-8c12-8b881d5738ad)
+
+
 
 # Network Control Server
 
