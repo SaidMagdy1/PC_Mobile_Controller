@@ -1,38 +1,49 @@
-#include <iostream>
-#include <cstdlib>
-#include <string>
-#include <algorithm>
-#include <cstring>    // For memset
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h> // For sockaddr_in
-#include <unistd.h>    // For close()
-#include <arpa/inet.h> // For inet_addr("127.0.0.1");  
-//states
-#define DONE 0
+#include "TcpServer.hpp"
 
-int main(){
+TcpServer::TcpServer()
+:ip{"127.0.0.1"},port{5555}
+{
+   createSocket(server_fd);
+   bindSocket(server_fd);
+   listening(server_fd);
+   accepting(client_sock);
+   chat();
 
-    int server_fd ,client_sock;
-    int binding;
-    int listening;
-    struct sockaddr_in hint;
-    struct sockaddr_in address;
-    int addrlen = sizeof(address);
-    int port=5555;
-    char buffer[1024] = {0};
+}
 
-    //Socket Initialization (File descriptor) 
-    server_fd = socket(AF_INET,SOCK_STREAM,0);
-    //std::cout<<"first : "<<server_st<<std::endl;
-    if(server_fd == DONE)
+TcpServer::TcpServer(const char *ip, int port)
+    :ip{ip},port{port}
+{
+    createSocket(server_fd);
+    bindSocket(server_fd);
+    listening(server_fd);
+    accepting(client_sock);
+    chat();
+}
+
+TcpServer::~TcpServer()
+{
+    std::cout << "Server closing..." << std::endl;
+    close(client_sock);
+    close(server_fd);
+}
+
+ //Socket Initialization (File descriptor)
+int TcpServer::createSocket(int &fd_)
+{
+    fd_ = socket(AF_INET,SOCK_STREAM,0);
+    if(fd_ == FAIL)
     {
         std::cerr<<"Can Not Init the Socket"<<std::endl;
         return -1;
     }
+    return 0;
+}
 
+int TcpServer::bindSocket(int &fd_)
+{
     hint.sin_family = AF_INET;   //IPv4
-    hint.sin_addr.s_addr = inet_addr("192.168.8.116");  
+    hint.sin_addr.s_addr = inet_addr(ip);  
     hint.sin_port = htons(port); 
     //htons keeps the port big enddian  i think the opposite is ntohs()
     /* ( Big-endian is an order in which the big end -- the most significant value in the sequence -- is first, 
@@ -40,34 +51,42 @@ int main(){
     Little-endian is an order in which the little end,
     the least significant value in the sequence, is first.)*/
 
-
-    binding=bind(server_fd , (struct sockaddr *)&hint ,sizeof(hint));
+   int binding=bind(server_fd , (struct sockaddr *)&hint ,sizeof(hint));
     //std::cout<<"binding : "<<binding<<std::endl;
-    if(binding < DONE)
+    if(binding == FAIL)
     {
-         std::cerr << "Binding failed" << std::endl;
-        return -1;
+        std::cerr << "Binding failed" << std::endl;
+        return -2;
     }
+    return 0;
+}
 
-
-    listening=listen(server_fd , SOMAXCONN);
+int TcpServer::listening(int &fd_)
+{
+   int listened=listen(server_fd , SOMAXCONN);
     //std::cout<<"listening : "<<listening<<std::endl;
-    if(listening < DONE)
+    if(listened == FAIL)
     {
         std::cerr << "Listen failed" << std::endl;
-        return -1;
+        return -3;
     }
-  
     std::cout << "Server listening on port " << port << std::endl;
+    return 0;
+}
 
-
-    client_sock = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
-    if(client_sock < DONE)
+int TcpServer::accepting(int &c_fd)
+{
+    c_fd = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen);
+    if(client_sock == FAIL)
     {
         std::cerr << "Accept failed" << std::endl;
-        return -1;
+        return -4;
     }
+    return 0;
+}
 
+void TcpServer::chat()
+{
     std::string message;
     while (true) {
         // Receive message from client
@@ -92,10 +111,7 @@ int main(){
         if(std::string(buffer,bytes_received) == "Code" || std::string(buffer,bytes_received) == "VSC" ){
             system("code . &");
         }
-        
-        
-
-        
+             
 /*
         // Prompt server user to enter a message to send
         std::cout << "Enter message to send to client (type 'exit' to close): ";
@@ -111,11 +127,4 @@ int main(){
 */
       
     }
-
-    std::cout << "Server closing..." << std::endl;
-    close(client_sock);
-    close(server_fd);
-    
-
-    return 0;
 }
