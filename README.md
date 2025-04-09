@@ -43,7 +43,7 @@ Multiple Processes: You can start multiple processes simultaneously. For example
 ## Compile the server:
 2. **Compile the server**:
    ```bash
-      g++ -o server server.cpp
+      g++ -o server main.cpp TcpServer.cpp
 
 
 ## Run the server:
